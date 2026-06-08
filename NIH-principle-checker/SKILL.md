@@ -1,9 +1,9 @@
 ---
-name: finding-existing-solutions
+name: NIH-principle-checker
 description: Use when planning or proposing a feature where a library, SDK, managed service, internal platform, gateway, workflow engine, infrastructure product, or vendor API might solve the capability
 ---
 
-# Finding Existing Solutions
+# NIH Principle Checker
 
 ## Overview
 

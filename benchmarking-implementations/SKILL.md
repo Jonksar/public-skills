@@ -13,7 +13,7 @@ Search GitHub and mature codebases for implementation patterns before locking in
 
 This skill answers: **"How do good codebases build this?"**
 
-**REQUIRED COMPANION:** Use `finding-existing-solutions` in a separate subagent for libraries, managed services, internal platforms, gateways, workflow engines, and other build-vs-adopt options.
+**REQUIRED COMPANION:** Use `NIH-principle-checker` in a separate subagent for libraries, managed services, internal platforms, gateways, workflow engines, and other build-vs-adopt options.
 
 ## Planning Subagent
 
@@ -22,7 +22,7 @@ When planning a feature, dispatch a dedicated read-only subagent for this lane. 
 - Decompose the feature into searchable implementation subproblems.
 - Search GitHub and code examples for each subproblem.
 - Report naming conventions, data models, API boundaries, tests, edge cases, and reusable patterns.
-- Stay in the code-pattern lane. Do not evaluate managed services or internal platforms; that belongs to `finding-existing-solutions`.
+- Stay in the code-pattern lane. Do not evaluate managed services or internal platforms; that belongs to `NIH-principle-checker`.
 
 ## When to Search
 
