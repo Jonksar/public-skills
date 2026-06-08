@@ -1,89 +1,82 @@
 ---
 name: benchmarking-implementations
-description: Use when writing implementation plans, proposing technical approaches (including during brainstorming), finishing implementation tasks, or about to commit to a solution without having checked how established projects handle the same problem
+description: Use when writing implementation plans, proposing technical approaches, finishing implementation tasks, or about to commit to a solution without checking how established codebases implement similar behavior, APIs, naming, state, tests, or edge cases
 ---
 
 # Benchmarking Implementations
 
 ## Overview
 
-Search GitHub for how established projects solve the same problem you're working on. Do this **before** finalizing a plan and **after** finishing implementation.
+Search GitHub and mature codebases for implementation patterns before locking in a design.
 
-**Core principle:** Your knowledge is a starting point, not a ceiling. Five minutes of searching almost always reveals a simpler approach, a battle-tested library, or a pattern you hadn't considered.
+**Core principle:** Your first design is only one possible design. Established codebases reveal naming conventions, data models, API shapes, tests, edge cases, and simpler implementation patterns you may miss.
+
+This skill answers: **"How do good codebases build this?"**
+
+**REQUIRED COMPANION:** Use `finding-existing-solutions` in a separate subagent for libraries, managed services, internal platforms, gateways, workflow engines, and other build-vs-adopt options.
+
+## Planning Subagent
+
+When planning a feature, dispatch a dedicated read-only subagent for this lane. Give it the feature goal and ask it to:
+
+- Decompose the feature into searchable implementation subproblems.
+- Search GitHub and code examples for each subproblem.
+- Report naming conventions, data models, API boundaries, tests, edge cases, and reusable patterns.
+- Stay in the code-pattern lane. Do not evaluate managed services or internal platforms; that belongs to `finding-existing-solutions`.
 
 ## When to Search
 
 **MUST search at three points:**
 
-1. **Brainstorming** — before proposing 2-3 approaches, search for how mature projects solve the same problem. This is where skipping is most costly: you lock in an approach based on knowledge alone.
-2. **Planning** — before writing implementation tasks, confirm the chosen approach against real-world examples
-3. **Post-implementation** — after code works and tests pass, search to see if the solution could be simpler
+1. **Brainstorming** — before proposing approaches, check how mature codebases model the behavior.
+2. **Planning** — before writing tasks, confirm file structure, API shape, and test strategy against real examples.
+3. **Post-implementation** — after code works, compare against established patterns and simplify if needed.
 
-```dot
-digraph search_flow {
-    "Writing a plan?" [shape=diamond];
-    "Search GitHub for approaches" [shape=box];
-    "Incorporate findings into plan" [shape=box];
-    "Write plan tasks" [shape=box];
-    "Implementation complete?" [shape=diamond];
-    "Search GitHub for comparisons" [shape=box];
-    "Simpler approach found?" [shape=diamond];
-    "Simplify implementation" [shape=box];
-    "Mark task complete" [shape=doublecircle];
+## Decompose Before Searching
 
-    "Brainstorming approaches?" [shape=diamond];
-    "Brainstorming approaches?" -> "Search GitHub for approaches" [label="yes"];
-    "Writing a plan?" -> "Search GitHub for approaches" [label="yes"];
-    "Search GitHub for approaches" -> "Incorporate findings into plan";
-    "Incorporate findings into plan" -> "Write plan tasks";
-    "Implementation complete?" -> "Search GitHub for comparisons" [label="yes"];
-    "Search GitHub for comparisons" -> "Simpler approach found?" ;
-    "Simpler approach found?" -> "Simplify implementation" [label="yes"];
-    "Simpler approach found?" -> "Mark task complete" [label="no, document why"];
-    "Simplify implementation" -> "Mark task complete";
-}
-```
+Search for reusable subproblems, not only the full feature phrase.
+
+Example: "accountant editing purchase-order invoices directly in a web UI" may not have a perfect reference. Decompose it into:
+
+| Feature slice | Search target |
+|---|---|
+| Line-item editing | embedded spreadsheet, editable grid, invoice line editor |
+| Validation | cross-field validation, tax/currency validation, tolerance checks |
+| State transitions | approval workflow, draft/posted invoice states |
+| Concurrency | optimistic updates, row locking, conflict resolution |
+| Auditability | audit log, change history, event sourcing |
+| Document context | side-by-side PDF viewer, document annotation |
 
 ## How to Search
 
-1. **Formulate 2-3 queries** from the problem domain (see Quick Reference for `gh` syntax)
-2. **Execute them** — listing queries you "would" run does not count. Run the commands, read output, adjust if results are empty. Nothing useful? Fine — document it and move on.
-3. **Read the top 2-3 results** — look for simpler data models, cleaner APIs, edge cases you missed, libraries that already do this
-4. **Document findings** — during planning: note in the plan ("Approach informed by [repo]'s pattern"). Post-implementation: simplify or document why your approach is better.
+1. **Formulate 2-3 code-pattern queries** from the decomposed slices.
+2. **Execute them** — listing queries you "would" run does not count.
+3. **Read top examples** — inspect actual code, not just README claims.
+4. **Extract patterns** — names, types, data flow, test cases, edge cases, and boundaries.
+5. **Document findings** — during planning: "Approach informed by [repo]'s [specific pattern]."
 
 ## Common Rationalizations
 
 | Excuse | Reality |
 |---|---|
-| "I already know how to do this" | You know *a* way. Search reveals whether it's the *best* way. |
-| "The design space is narrow" | Narrow design spaces still have better and worse implementations. Search takes 5 minutes. |
-| "Searching is for the design phase" | Post-implementation search catches over-engineering and missed libraries. Both phases matter. |
-| "Time pressure — developer is waiting" | 5 minutes of searching saves hours of rework. Shipping a worse solution is not faster. |
-| "Swapping to a library is too disruptive" | You're not required to swap. You're required to *know what exists* and make an informed choice. |
-| "I'll search if I get stuck" | By then you've sunk time into your approach. Search early, when you can still change direction cheaply. |
-| "My implementation already works" | Working != optimal. The point is to find *simplifications*, not prove it's broken. |
-| "I know what I'd find" | Then prove it — run the search. If you're right, it takes 30 seconds. If you're wrong, you just saved hours. |
-| "I'll list the searches I would run" | Listing queries is not searching. Execute them. Read results. Then decide. |
-| "I'm following [brainstorming/other skill] which doesn't mention searching" | No other skill overrides this one. Benchmarking applies at every design decision point regardless of what other process you're following. |
-| "I explored the codebase — that's equivalent" | Searching your own codebase is not benchmarking. You need external evidence from established projects. |
+| "The exact feature is too domain-specific" | Search the subproblems: grids, validation, workflows, audit logs, concurrency. |
+| "I already know how to implement this" | You know one way. Search reveals better names, states, tests, and edge cases. |
+| "I checked our codebase" | Internal exploration is useful, but not benchmarking against established projects. |
+| "GitHub did not find the whole product workflow" | Decompose and search the reusable implementation slices. |
+| "Service discovery covers this" | Service discovery decides build-vs-adopt. This skill studies code patterns for the parts you still build. |
 
-## Red Flags — STOP and Search
+## Red Flags - STOP and Search
 
-- **About to propose 2-3 approaches during brainstorming without searching GitHub first**
-- About to write a plan without checking how others solved it
-- About to mark implementation complete without comparing against existing approaches
-- Thinking "I know this domain well enough"
-- Following another skill (brainstorming, writing-plans) and assuming it covers search — it doesn't
-- Feeling time pressure as a reason to skip
-- Rolling your own when a library might exist
-- Writing 50+ lines for something that might be a one-liner with the right tool
-- Listing search queries without executing them
-- Saying "I would search for X" instead of actually searching
+- About to write a plan without checking code patterns.
+- Designing data models, state machines, or API names from scratch.
+- Building editable tables, workflow state, validation, audit logs, permissions, or concurrency logic.
+- Writing 50+ lines for something that mature repos likely solve.
+- Saying "I would search" instead of executing searches.
 
 ## Quick Reference
 
 ```bash
-gh search repos "<problem>" --language <lang> --sort stars --limit 5
+gh search repos "<subproblem>" --language <lang> --sort stars --limit 5
 gh search code "<pattern>" --language <lang> --limit 10
 gh search code "<pattern>" --repo owner/repo --limit 10
 gh api repos/owner/repo/contents/path/to/file | jq -r '.content' | base64 -d
